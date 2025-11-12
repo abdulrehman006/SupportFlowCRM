@@ -1,0 +1,234 @@
+// SupportFlowCRM - Prisma Schema
+// Database schema for enterprise support & ticketing system
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// MODULE 2: USER & AUTHENTICATION
+// ============================================
+
+model User {
+  id                 String    @id @default(cuid())
+  name               String
+  email              String    @unique
+  password           String
+  role               Role      @default(AGENT)
+  image              String?
+  phone              String?
+  bio                String?
+  isActive           Boolean   @default(true)
+  emailNotifications Boolean   @default(true)
+  timezone           String    @default("UTC")
+  lastActiveAt       DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  // Relations
+  assignedTickets    Ticket[]  @relation("AssignedTickets")
+  createdTickets     Ticket[]  @relation("CreatedTickets")
+  comments           Comment[]
+  activities         Activity[]
+
+  @@map("users")
+}
+
+enum Role {
+  ADMIN
+  SUPERVISOR
+  AGENT
+}
+
+// ============================================
+// MODULE 3: CONTACTS & COMPANIES
+// ============================================
+
+model Contact {
+  id            String      @id @default(cuid())
+  firstName     String
+  lastName      String
+  email         String      @unique
+  phone         String?
+  address       String?
+  city          String?
+  state         String?
+  zipCode       String?
+  country       String?
+  jobTitle      String?
+  department    String?
+
+  // Social & Custom Fields
+  linkedinUrl   String?
+  twitterUrl    String?
+  customField1  String?
+  customField2  String?
+  customField3  String?
+
+  // Lead Management
+  leadScore     Int         @default(0)
+  leadStatus    LeadStatus  @default(NEW)
+
+  // Relations
+  companyId     String?
+  company       Company?    @relation(fields: [companyId], references: [id])
+  tickets       Ticket[]
+  tags          Tag[]
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@map("contacts")
+}
+
+model Company {
+  id              String    @id @default(cuid())
+  name            String    @unique
+  website         String?
+  industry        String?
+  size            String?
+  revenue         String?
+  description     String?
+  logo            String?
+
+  // Relationship tracking
+  customerSince   DateTime?
+  healthScore     Int       @default(50)
+
+  // Relations
+  contacts        Contact[]
+  tickets         Ticket[]
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("companies")
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  UNQUALIFIED
+  CUSTOMER
+}
+
+// ============================================
+// MODULE 3: TICKETS & SUPPORT
+// ============================================
+
+model Ticket {
+  id              String         @id @default(cuid())
+  ticketNumber    String         @unique
+  subject         String
+  description     String
+  status          TicketStatus   @default(OPEN)
+  priority        TicketPriority @default(MEDIUM)
+  category        TicketCategory @default(ISSUE)
+
+  // Relations
+  contactId       String
+  contact         Contact        @relation(fields: [contactId], references: [id])
+
+  companyId       String?
+  company         Company?       @relation(fields: [companyId], references: [id])
+
+  assignedToId    String?
+  assignedTo      User?          @relation("AssignedTickets", fields: [assignedToId], references: [id])
+
+  createdById     String
+  createdBy       User           @relation("CreatedTickets", fields: [createdById], references: [id])
+
+  comments        Comment[]
+  tags            Tag[]
+  activities      Activity[]
+
+  dueDate         DateTime?
+  resolvedAt      DateTime?
+  closedAt        DateTime?
+
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@map("tickets")
+}
+
+model Comment {
+  id          String   @id @default(cuid())
+  content     String
+  isInternal  Boolean  @default(false)
+
+  // Relations
+  ticketId    String
+  ticket      Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("comments")
+}
+
+model Tag {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  color     String    @default("#3B82F6")
+
+  // Relations
+  tickets   Ticket[]
+  contacts  Contact[]
+
+  createdAt DateTime  @default(now())
+
+  @@map("tags")
+}
+
+model Activity {
+  id          String   @id @default(cuid())
+  type        String
+  action      String
+  description String?
+  metadata    Json?
+
+  // Relations
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+
+  ticketId    String?
+  ticket      Ticket?  @relation(fields: [ticketId], references: [id])
+
+  createdAt   DateTime @default(now())
+
+  @@map("activities")
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING_FOR_CUSTOMER
+  RESOLVED
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TicketCategory {
+  BUG
+  FEATURE_REQUEST
+  QUESTION
+  ISSUE
+  TECHNICAL_SUPPORT
+  BILLING
+}
