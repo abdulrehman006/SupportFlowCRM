@@ -29,31 +29,27 @@ A modern, full-stack customer support CRM built with Next.js 16, TypeScript, and
 ## 📸 Screenshots
 
 ### Dashboard
-![Dashboard](./screenshots/dashboard.png)
+![Dashboard](./screenshots/dashboard.jpg)
 *Real-time analytics dashboard with ticket statistics, priority distribution, and activity feed*
 
 ### Tickets Management
-![Tickets](./screenshots/tickets.png)
+![Tickets](./screenshots/tickets.jpg)
 *Comprehensive ticket management with filtering, status updates, and detailed views*
 
 ### Ticket Details
-![Ticket Details](./screenshots/ticket-details.png)
+![Ticket Details](./screenshots/ticket-details.jpg)
 *Rich ticket detail view with comments, activity timeline, and file attachments*
 
 ### User Management (Admin)
-![User Management](./screenshots/user-management.png)
+![User Management](./screenshots/user-management.jpg)
 *Admin panel for managing users, roles, permissions, and account status*
 
-### Settings - Profile
-![Settings Profile](./screenshots/settings-profile.png)
-*User profile settings with ability to update name, email, and password*
-
 ### Contacts
-![Contacts](./screenshots/contacts.png)
+![Contacts](./screenshots/contacts.jpg)
 *Contact management with detailed customer profiles and interaction history*
 
 ### Companies
-![Companies](./screenshots/companies.png)
+![Companies](./screenshots/companies.jpg)
 *Company profiles with organizational information and associated contacts*
 
 ---
